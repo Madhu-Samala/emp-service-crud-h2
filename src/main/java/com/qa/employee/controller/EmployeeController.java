@@ -1,5 +1,9 @@
 package com.qa.employee.controller;
 
+
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.qa.employee.entity.Employee;
+import com.qa.employee.exception.EmployeeAlreadyExistsException;
 import com.qa.employee.service.EmployeeService;
 
 @RestController
@@ -27,8 +32,13 @@ public class EmployeeController {
 	ResponseEntity<?> responseEntity;
 
 	@PostMapping("/employee")
-	public ResponseEntity<?> saveEmployee(@RequestBody Employee employee) {
-		Employee createdEmployee = this.empService.saveEmployee(employee);
+	public ResponseEntity<?> saveEmployee(@Valid @RequestBody Employee employee) throws EmployeeAlreadyExistsException {
+		Employee createdEmployee;
+		try {
+			createdEmployee = this.empService.saveEmployee(employee);
+		} catch (EmployeeAlreadyExistsException e) {
+			throw e;
+		}
 		responseEntity = new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
 		return responseEntity;
 	}
